@@ -1,11 +1,17 @@
-
-application/x-httpd-php select.php ( PHP script, ASCII text )
-
 <?php  
- $connect = mysqli_connect("localhost", "username", "password", "dbname");  
- $output = '';  
+  require_once './connection_info_live_test.php';
+try {
+ $connect = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
+ $connect->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
  $sql = "SELECT * FROM tbl_sample ORDER BY id DESC";  
- $result = mysqli_query($connect, $sql);  
+ $stmt = $connect->prepare($sql);
+ $stmt->execute();
+ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+catch(PDOException $e) {
+    echo "Error: " . $e->getMessage();
+} 
+ $output = '';
  $output .= '  
       <div class="table-responsive">  
            <table class="table table-bordered">  
@@ -15,9 +21,9 @@ application/x-httpd-php select.php ( PHP script, ASCII text )
                      <th width="20%">Last Name</th>  
                      <th width="5%">Delete</th>  
                 </tr>';  
- if(mysqli_num_rows($result) > 0)  
+ if ($result)  
  {  
-      while($row = mysqli_fetch_array($result))  
+      foreach ($result as $row)
       {  
            $output .= '  
                 <tr>  
@@ -47,4 +53,3 @@ application/x-httpd-php select.php ( PHP script, ASCII text )
       </div>';  
  echo $output;  
  ?>
-
